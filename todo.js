@@ -36,6 +36,8 @@ class Todo {
     console.log(`$ node todo.js complete (type spesific task id)`);
     console.log(`$ node todo.js uncomplete (type spesific task id)`);
     console.log(`$ node todo.js list:outstanding`);
+    console.log(`$ node todo.js list:outstanding asc`);
+    console.log(`$ node todo.js list:outstanding desc`);
     console.log(`$ node todo.js list:completed`);
     console.log(`$ node todo.js tag (type spesific task id) (write tags)`);
     console.log(`$ node todo.js filter (type filter)`);
@@ -54,6 +56,8 @@ class Todo {
     console.log(`$ node todo.js complete (type spesific task id) >>>>>>>> to see completed task`);
     console.log(`$ node todo.js uncomplete (type spesific task id) >>>>>> to see uncomplete task`);
     console.log(`$ node todo.js list:outstanding >>>> to sort uncompleted task by created date`);
+    console.log(`$ node todo.js list:outstanding asc >>>> to sort uncompleted task by created date (ascending)`);
+    console.log(`$ node todo.js list:outstanding desc >>>> to sort uncompleted task by created date (descending)`);
     console.log(`$ node todo.js list:completed >>>> to sort completed task by created date`);
     console.log(`$ node todo.js tag (type spesific task id) (type tags) >>>>>> to add custom tags`);
     console.log(`$ node todo.js filter (type filter) >>>>> to sort task by filter`);
@@ -87,12 +91,12 @@ class Todo {
   static add(value){
     value = value.join(" ")
     if(jsonContent.length == 0){
-      var newTask = new Task({id:0, note:value, done:false, created_at:new Date(), completed_at:null})
+      var newTask = new Task({id:0, note:value, done:false, created_at:new Date(), completed_at:null, tag:[]})
       jsonContent.push(newTask)
       var write = JSON.stringify(jsonContent)
       fs.writeFileSync('data.json', write, 'utf8');
     }else{
-      var newTask = new Task({id:jsonContent[jsonContent.length-1]._id+1, note:value, done:false, created_at:new Date(), completed_at:null})
+      var newTask = new Task({id:jsonContent[jsonContent.length-1]._id+1, note:value, done:false, created_at:new Date(), completed_at:null, tag:[]})
       jsonContent.push(newTask)
       var write = JSON.stringify(jsonContent)
       fs.writeFileSync('data.json', write, 'utf8');
@@ -243,10 +247,9 @@ class Todo {
       }
       }
     static tag(number, array){
-      var temp = array.join(', ')
       for(var i=0; i<jsonContent.length; i++){
         if(parseInt(number)== jsonContent[i]._id+1){
-          jsonContent[i]._tag = temp
+          jsonContent[i]._tag = array
           if(jsonContent[i]._done == false){
             console.log(`[ ] ${jsonContent[i]._id+1}. ${jsonContent[i]._note} | tag : ${jsonContent[i]._tag}`);
           } else {
@@ -262,33 +265,29 @@ class Todo {
       }
 
     static filter(number){
-      for(var i=0; i<jsonContent.length; i++){
-        var mem = jsonContent[i]._tag
-        if(mem.indexOf(number) > 0){
-          console.log('a');
-        } else if (undefined){
+      console.log(`----------------------------------------`);
+      console.log(`     Task Filtered by tag : ${number}`);
+      console.log(`----------------------------------------`);
+      var sorted = jsonContent.sort(function(a,b){
+        if(a._created_at > b._created_at){
+          return 1
         }
-      }
-      // console.log('param : ' + array[0] + " " + typeof(array[0]));
-      // console.log('target : ' + jsonContent[3]._tag + " " + typeof(jsonContent[3]._tag));
-        // number = number.trim()
-        // var regex = new RegExp(".+?(?="+ number +")","gi")
-        // console.log(`number : ${number} type : ${typeof(number)}`);
-        // for(var i = 0; i< jsonContent.length; i++){
-        //   console.log(`jsonContent ke ${i} : ${jsonContent[i]._tag} | type : ${typeof(jsonContent[i]._tag)} | number : ${number} | type : ${typeof(number)}`);
-        //     console.log(regex.test(jsonContent[i]._tag));
-        // }
-      // var test = JSON.parse(jsonContent._tag)
-      // console.log(test);
-      // for(var i=0; i<array.length; i++){
-      //   for(var j=0; j<jsonContent.length; j++){
-      //     if(regex.test(jsonContent[j]._tag) == true && jsonContent[j]._done == false){
-      //       console.log(`[ ] ${jsonContent[i]._id+1}. ${jsonContent[i]._note} | tag : ${jsonContent[i]._tag}`);
-      //     }else if(regex.test(jsonContent[j]._tag) == true && jsonContent[j]._done == true){
-      //       console.log(`[X] ${jsonContent[i]._id+1}. ${jsonContent[i]._note} | tag : ${jsonContent[i]._tag}`);
-      //       }
-      //     }
-      //   }
+        if(a._created_at < b._created_at){
+          return -1
+        }
+        return 0;
+      })
+      for(var i=0; i<sorted.length; i++){
+        for(var j=0; j<sorted[i]._tag.length; j++){
+          if(number === sorted[i]._tag[j]){
+            if(sorted[i]._done == false){
+              console.log(`[ ] ${sorted[i]._id+1}. ${sorted[i]._note} | tag : ${sorted[i]._tag}`);
+            }else{
+              console.log(`[X] ${sorted[i]._id+1}. ${sorted[i]._note} | tag : ${sorted[i]._tag}`);
+              }
+            }
+          }
+        }
       }
     }
 
@@ -325,47 +324,39 @@ if(args[2] === 'help'){
 } else if(args[2] === 'list'){
   Interface.clearscreen()
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'task'){
   Interface.clearscreen()
   Todo.task(args[3])
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'add'){
   Interface.clearscreen()
   Todo.add(args.slice(3,args.length))
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'delete'){
   Interface.clearscreen()
   Todo.delete(args[3])
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'complete'){
   Interface.clearscreen()
   Todo.complete(args[3])
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'uncomplete'){
   Interface.clearscreen()
   Todo.uncomplete(args[3])
   Todo.list()
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'list:outstanding'){
   Interface.clearscreen()
   Todo.outstanding(args[3])
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'list:completed'){
   Interface.clearscreen()
   Todo.listCompleted(args[3])
-  Interface.newLines(1)
   Todo.mainMenu()
 } else if(args[2] === 'tag'){
   Interface.clearscreen()
@@ -375,7 +366,6 @@ if(args[2] === 'help'){
 } else if(args[2] === 'filter'){
   Interface.clearscreen()
   Todo.filter(args[3])
-  Interface.newLines(1)
   Todo.mainMenu()
 } else{
   Interface.clearscreen()
