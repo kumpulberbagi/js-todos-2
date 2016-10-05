@@ -5,10 +5,13 @@ var display = () =>{
   console.log("help");
   console.log("list");
   console.log("add <task_content>");
-  console.log("save");
   console.log("delete <task_id>");
   console.log("complete <task_id>");
   console.log("uncomplete <task_id>");
+  console.log("sortedlist <asc/desc>");
+  console.log("listcomplete (list completed tasks)");
+  console.log("tag <your_tags>");
+  console.log("filter <tag>");
   console.log("<-------------------->");
 }
 
@@ -18,7 +21,8 @@ class Task{
     this.task = tugas
     this.complete = "[x]"
     this.created_date = new Date().toLocaleString()
-    this.complete_date = "date"
+    this.complete_date = "belum selesai"
+    this.tag = []
   }
 }
 
@@ -52,10 +56,6 @@ class Data{
     return ""
   }
 
-  // static list:outstanding(){
-  //   console.log("x")
-  // }
-
   static add_task(text){
     this.allData.push(new Task(text))
     console.log("Added " + text + " to your to do list!")
@@ -76,11 +76,18 @@ class Data{
     this.save()
   }
   static listcomplete(){
-    var j = 0
+    this.allData = this.allData.sort(function(a,b) {
+    if ( a.complete_date < b.complete_date )
+        return -1;
+    if ( a.complete_date > b.complete_date )
+        return 1;
+    return 0;
+    } );
+    var j = 1
     for (var i = 0; i < this.allData.length; i++){
-      j +=1
       if (this.allData[i].complete === "[v]"){
-        console.log(j + " " + this.allData[i].task)
+        console.log(j + " " + this.allData[i].task + " || Completed on: "+ this.allData[i].complete_date)
+        j +=1
       }
     }
   }
@@ -116,6 +123,24 @@ class Data{
     }
   }
 
+  static tagging(tag){
+    tag = tag.split(" ")
+    var id = tag[0]
+    tag.splice(0, 1)
+    this.allData[id - 1].tag = tag
+    this.save()
+  }
+
+  static filter(thefilter){
+    var j = 1
+    for (var i = 0; i < this.allData.length; i++){
+      if (this.allData[i].tag.indexOf(thefilter) != -1){
+        console.log(j+ " " + this.allData[i].task + " [" + this.allData[i].tag+"]")
+        j++
+      }
+    }
+  }
+
   static save(){
     fs.writeFile('data.json', JSON.stringify(this.allData), (err) => {
       if (err) throw err;
@@ -125,7 +150,6 @@ class Data{
 }
 
 Data.parseJSON()
-process.argv.forEach((val, index) => {
   process.argv.splice(0,2)
   var func = process.argv.splice(0, 1).join("")
   var arg = process.argv.join(" ")
@@ -149,9 +173,6 @@ process.argv.forEach((val, index) => {
     case "uncomplete":
       Data.uncomplete(arg)
       break;
-    case "save":
-      Data.save()
-      break;
     case "sortedlist":
       if (arg == "desc"){
         Data.desc()
@@ -162,10 +183,15 @@ process.argv.forEach((val, index) => {
     case "listcomplete":
       Data.listcomplete()
       break;
+    case "tag":
+        Data.tagging(arg)
+        break;
+    case "filter":
+        Data.filter(arg)
+        break;
     default:
         display();
   }
-})
 
 // Data.parseJSON();
 // Data.list();
