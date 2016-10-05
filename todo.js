@@ -20,7 +20,7 @@ function indexSort(){
 class TodoList {
   constructor(task) {
     this.taskId = json[json.length-1].id
-    this.idTask = task
+    this.idTask = task;
     this.kondisi = false;
     this.date = new Date();
   }
@@ -80,7 +80,7 @@ class TodoList {
   }
 
   addTask(task){
-    json.push({"id":2,"task":task,"status":this.kondisi ,"created_date":this.date,"completed_date":null,"tag":[]});
+    json.push({"id":this.taskId+=1,"task":task,"status":this.kondisi ,"created_date":this.date,"completed_date":null,"tag":[]});
     console.log("Silahkan ubah status menjadi complete menggunakan perintah ke 5");
     writeJson()
   }
