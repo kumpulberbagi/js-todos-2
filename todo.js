@@ -33,8 +33,7 @@ class TodoList {
     console.log("5. node todo.js complete <task_id>");
     console.log("6. node todo.js uncomplete <task_id");
     console.log("7. node todo.js list:complete asc|| desc");
-    console.log("7. node todo.js list:outstanding asc|| desc");
-    console.log("8. node todo.js add tag");
+    console.log("8. node todo.js list:outstanding asc|| desc");
     console.log("9. node todo.js filter <tag_name>");
     console.log("10. node todo.js tag <task_id> <tag_name1> <tag_name2> ... <tag_nameN> ");
     console.log("------------------------------");
@@ -110,6 +109,24 @@ class TodoList {
     var index = json.map(function(el) { return el.id; }).indexOf(Number(id));
     console.log(json[index].task);
   }
+
+  addTag(id,value){
+    let index = json.map(function(el) { return el.id; }).indexOf(Number(id));
+    let input = value.toString().split(',');
+    for (var i = 0; i < input.length; i++) {
+      json[index].tag.push(input[i])
+    }
+    writeJson()
+  }
+
+  filterTag(tagName){
+    for (var i = 0; i < json.length; i++) {
+      if (json[i].tag.indexOf(tagName) >= 0) {
+        console.log(`${json[i].task} , ${json[i].tag}`);
+      }
+    }
+
+  }
 }
 
 //
@@ -122,6 +139,7 @@ var testing = new TodoList();
 console.log("--------------");
 // console.log(json);
 //
+// var sampel = []
 process.argv.forEach((val, index, array) => {
 
   if (index === 1) {
@@ -164,6 +182,10 @@ process.argv.forEach((val, index, array) => {
         console.log("anda tidak menginputkan sorting, berikut soring berdasarkan descending");
         testing.completeSort(array[3])
       }
+    }else if (val === "tag"){
+      testing.addTag(array[3],array.splice(4,array.length))
+    }else if(val === "filter"){
+      testing.filterTag(array[3])
     }
   }
 });
