@@ -9,6 +9,9 @@ var file = 'data.json';
 var tampung_dataObject = ''
 
 var date = new Date()
+
+
+//console.log(dataObject[0]);
 // for(var i=0;i<dataObject.length;i++){
 // dataObject[i].created_date = date
 // dataObject[i].completed_date = " "
@@ -121,7 +124,7 @@ process.argv.forEach((val,index,array)=>{
     break
     case 'tag':
     if(array.length >3){
-      var tampung_tag = ''
+      var tampung_tag = []
       for(var i=0;i<dataObject.length;i++)
       {
         if(dataObject[i].id.toString() === array[3].toString()){
@@ -129,15 +132,14 @@ process.argv.forEach((val,index,array)=>{
           for(var j=4;j<array.length;j++){
             if(tampung_tag[j] !== 'undefined'){
             tampung_tag += ""+array[j]
+          //  tampung_tag.push(array[j])
         }
         }
           dataObject[i].tag = tampung_tag
-          //console.log(tampung_tag);
       }
       console.log(`Tagged tag "${dataObject[i].task}" with tags :${dataObject[i].tag}`);
         }
       }
-  //console.log(`Tagged tag ${dataObject[i].task} with tags ${dataObject[i].tag}`);
     }
 
    jsonfile.writeFileSync(file,dataObject)
