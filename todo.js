@@ -43,8 +43,11 @@ let printHelp = () => {
   console.log("node todo.js add <task_content>");
   console.log("node todo.js task <task_id>");
   console.log("node todo.js delete <task_id>");
-  console.log("node todo.js complete <task_id>");
-  console.log("node todo.js uncomplete <task_id>");
+  console.log("node todo.js completed <task_id>");
+  console.log("node todo.js uncompleted <task_id>");
+  console.log("node todo.js list:outstanding");
+  console.log("node todo.js list:outstanding <asc|desc>");
+  console.log("node todo.js filter:<text>");
 }
 
 
