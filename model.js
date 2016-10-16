@@ -47,9 +47,9 @@ module.exports = class Todo {
       case 'delete' :
         args[1] === undefined ? Todo.welcome() : Todo.destroy(local,Number(args[1]));
         break;
-      // case 'update' :
-      //   args[1] === undefined ? Todo.welcome() : Todo.update_status(args[1], args[2]);
-      //   break;
+      case 'update' :
+        args[1] === undefined ? Todo.welcome() : Todo.update_status(local, args[1], String(args[2]));
+        break;
       case 'show':
         args[1] === undefined ? Todo.show_all(local) : Todo.show_id(local, Number(args[1]));
         break;
@@ -76,8 +76,7 @@ module.exports = class Todo {
   }
 
   static show_all(arr) {
-    let show = (arr) => R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), arr);
-    return show(arr);
+    return R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), arr);
   }
 
   static show_id(arr, id) {
@@ -88,6 +87,12 @@ module.exports = class Todo {
   static show_status(arr, status) {
     var eh = R.filter(obj => obj.status === status, arr);
     return R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), eh)
+  }
+
+  static update_status(arr, id, status) {
+    local = R.update(id, status, arr);
+    update()
+    console.log(`the task with ${id} is updated tp ${status}`);
   }
 
 }
