@@ -3,10 +3,17 @@
 ///////////////////////////////////////////////////////////
 ///////////// global variable that means to get the message
 ///////////////////////////////////////////////////////////
+const R = require('ramda');
 const jf = require('jsonfile');
 const file = './db/todo.json';
-let args = require('./app.js');
-let local = [jf.readFileSync(file)];
+const args = require('./app.js');
+let local = jf.readFileSync(file);
+
+// global function for generating unique id and update todo.json
+const idGenerator = (arr) => arr.length === 0 ? 1 : arr.length + 1;
+const update = () => jf.writeFileSync(file, local)
+
+///////////////////////////////////////////////////////////
 
 const commands = ["help","add", "show", "delete", "update", "show_by_status"];
 
@@ -16,8 +23,7 @@ const defaultMessage = `
 2. ${commands[1]} <add "your task">
 3. ${commands[2]} <show "id" or "all">
 4. ${commands[3]} <delete "id">
-5. ${commands[4]} <update id "your task"> <status:true|false>
-6. ${commands[5]} <show_by_status "true | false">\n
+5. ${commands[5]} <show_by_status "true | false">\n
 * Remember your space. This is CLI not GUI!\n`;
 
 ///////////////////////////////////////////////////////////
@@ -36,19 +42,19 @@ module.exports = class Todo {
   static run(args) {
     switch(args[0]){
       case 'add' :
-        args[1] === undefined ? Todo.welcome() : Todo.create({id:(this.data_length - 1), title: args[1], status: false});
+        args[1] === undefined ? Todo.welcome() : Todo.create({id: idGenerator(local) ,title: args[1], status: "incomplete"});
         break;
       case 'delete' :
-        args[1] === undefined ? Todo.welcome() : Todo.destroy_id(args[1]);
+        args[1] === undefined ? Todo.welcome() : Todo.destroy(local,Number(args[1]));
         break;
-      case 'update' :
-        args[1] === undefined ? Todo.welcome() : Todo.update_status(args[1], args[2]);
-        break;
+      // case 'update' :
+      //   args[1] === undefined ? Todo.welcome() : Todo.update_status(args[1], args[2]);
+      //   break;
       case 'show':
-        args[1] === undefined ? Todo.show_all() : Todo.show_id(args[1]);
+        args[1] === undefined ? Todo.show_all(local) : Todo.show_id(local, Number(args[1]));
         break;
       case 'show_by_status':
-        args[1] === undefined ? Todo.show_all() : Todo.show_status(args[1]);
+        args[1] === undefined ? Todo.show_all(local) : Todo.show_status(local, args[1]);
         break;
       default:
         Todo.welcome();
@@ -58,31 +64,30 @@ module.exports = class Todo {
   //create
 
   static create(args) {
-    jf.writeFileSync('./db/update.json', args);
-    let updated = jf.readFileSync(file);
-    local.push(updated);
-    jf.writeFileSync(file, local);
+    local.push(args);
+    update()
     console.log("it's saved");
   }
 
-  static destroy(id) {
-
+  static destroy(arr, id) {
+    local = R.remove(id - 1, 1, arr);
+    update()
+    console.log(`the task with ${id} id deleted from the list`);
   }
 
-  static show_all() {
-    local.map((value) => {
-      console.log(`${value.id} [ ] task ${value.title}`);
-    })
-    // jf.readFile(file, (err, obj) => {
-    //   console.log(`Task: ${obj.title} || Status: ${obj.status}`);
-    // });
+  static show_all(arr) {
+    let show = (arr) => R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), arr);
+    return show(arr);
   }
 
-  static show_id(id) {
-
+  static show_id(arr, id) {
+    var selected = R.filter(obj => obj.id === id, arr);
+    return R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), selected)
   }
 
-  static testing() {
+  static show_status(arr, status) {
+    var eh = R.filter(obj => obj.status === status, arr);
+    return R.map(obj => console.log(obj.id + " " + obj.title + " | " + obj.status), eh)
   }
 
 }
